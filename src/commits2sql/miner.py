@@ -23,7 +23,7 @@ class DataMiner(object):
             end_date: Optional[datetime] = None,
             from_commit: Optional[str] = None,
             to_commit: Optional[str] = None
-    ):
+    ) -> None:
         repos = RepositoryMining(
             self.__repos_path,
             since=start_date,
@@ -35,8 +35,9 @@ class DataMiner(object):
             if self.__recorder.is_record_before(commit.hash): continue
             for modification in commit.modifications: self.__handle_modification(modification, commit.hash)
             self.__recorder.record_git_commit(commit.hash, commit.author_date)
+        return None
 
-    def __handle_modification(self, modification: Modification, commit_hash: str):
+    def __handle_modification(self, modification: Modification, commit_hash: str) -> None:
         file = Extractor(modification).get_changed_file()
         if file.is_renamed(): self.__recorder.record_file_relocate(file.path_before, file.path_current)
         path = file.path_current if file.path_current is not None else file.path_before
@@ -59,3 +60,4 @@ class DataMiner(object):
                 elif method.is_modified():
                     method_id = self.__recorder.get_method_id(method.method_before.long_name, class_name, path)
                     self.__recorder.record_modify_method(method_id, commit_hash)
+        return None

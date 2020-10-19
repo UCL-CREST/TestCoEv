@@ -60,11 +60,11 @@ class CoChangedInWeekLinkEstablisher(AbsLinkEstablisher):
         ),
         tested_modified AS (
             SELECT target_method_id AS tested_method_id, change_week FROM week_based_changes
-            WHERE file_path LIKE 'src/main/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :tested_path
         ),
         test_modified AS (
             SELECT target_method_id AS test_method_id, change_week FROM week_based_changes
-            WHERE file_path LIKE 'src/test/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :test_path
         ),
         tested_count AS (
             SELECT tested_method_id, COUNT(*) AS changed_count FROM tested_modified
@@ -76,9 +76,13 @@ class CoChangedInWeekLinkEstablisher(AbsLinkEstablisher):
                 ON test_modified.change_week = tested_modified.change_week
             ) GROUP BY tested_method_id, test_method_id
         )
-        SELECT co_changed.tested_method_id, test_method_id, support, CAST(support AS FLOAT)/changed_count AS confidence
-        FROM (
-            co_changed INNER JOIN tested_count
+        SELECT 
+            co_changed.tested_method_id AS tested_method_id, 
+            test_method_id, 
+            MAX(support), 
+            CAST(support AS FLOAT)/changed_count AS confidence
+        FROM co_changed 
+            INNER JOIN tested_count
             ON co_changed.tested_method_id = tested_count.tested_method_id
-        )
+        GROUP BY test_method_id
     '''

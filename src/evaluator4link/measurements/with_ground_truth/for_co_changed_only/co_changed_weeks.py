@@ -40,15 +40,15 @@ class CoChangedWeeksMeasurement(AbstractCoChangeMetaDataMeasurement):
         self.__weeks_num_id_mapping: Dict[str, int] = dict()
         self.__test_changed_weeks = {
             method_id: {self.__from_hash_value_to_id(change_week) for change_week in change_weeks}
-            for method_id, change_weeks in self._test_changes
+            for method_id, change_weeks in self._test_changes.items()
         }
         self.__tested_changed_weeks = {
             method_id: {self.__from_hash_value_to_id(change_week) for change_week in change_weeks}
-            for method_id, change_weeks in self._tested_changes
+            for method_id, change_weeks in self._tested_changes.items()
         }
         self.__co_changed_weeks = {
-            (tested_id, test_id): {self.__from_hash_value_to_id(change_week) for change_week in change_weeks}
-            for tested_id, test_id, change_weeks in self._co_changes
+            method_pair: {self.__from_hash_value_to_id(change_week) for change_week in change_weeks}
+            for method_pair, change_weeks in self._co_changes.items()
         }
 
     def __from_hash_value_to_id(self, hash_val: str) -> int:

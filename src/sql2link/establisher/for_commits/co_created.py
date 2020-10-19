@@ -43,11 +43,11 @@ class CoCreatedInCommitLinkEstablisher(AbsLinkEstablisher):
             AND simple_name NOT LIKE ('for(int i%')
         ), tested_methods AS (
             SELECT alive_methods.id AS tested_method_id, commit_hash FROM alive_methods, git_changes
-            WHERE file_path LIKE 'src/main/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :tested_path
             AND change_type = 'ADD' AND alive_methods.id = git_changes.target_method_id
         ), test_methods AS (
             SELECT alive_methods.id AS test_method_id, commit_hash FROM alive_methods, git_changes
-            WHERE file_path LIKE 'src/test/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :test_path
             AND change_type = 'ADD' AND alive_methods.id = git_changes.target_method_id
         )
         SELECT tested_method_id, test_method_id FROM (

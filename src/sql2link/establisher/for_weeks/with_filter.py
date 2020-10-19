@@ -66,7 +66,7 @@ class CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(AbstractCoCha
         ),
         tested_functions AS (
             SELECT id FROM git_methods
-            WHERE file_path LIKE 'src/main/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :tested_path
         ),
         tested_changes AS (
             SELECT target_method_id AS tested_id, change_week FROM filtered_change
@@ -74,7 +74,7 @@ class CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(AbstractCoCha
         ),
         test_methods AS (
             SELECT id FROM git_methods
-            WHERE file_path LIKE 'src/test/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :test_path
         ),
         test_changes AS (
             SELECT target_method_id AS test_id, change_week FROM filtered_change
@@ -92,10 +92,15 @@ class CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(AbstractCoCha
             )
             GROUP BY tested_id, test_id
         )
-        SELECT tested_id, test_id, support, CAST(support AS FLOAT)/change_num AS confidence FROM (
-            co_change_table INNER JOIN tested_change_count
+        SELECT 
+            tested_id, 
+            test_id, 
+            support, 
+            CAST(support AS FLOAT)/change_num AS confidence 
+        FROM co_change_table 
+            INNER JOIN tested_change_count
             ON tested_id = count_id
-        )
+        
     '''
 
 
@@ -131,7 +136,7 @@ class CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(AbstractCoChangedW
         ),
         tested_functions AS (
             SELECT id FROM git_methods
-            WHERE file_path LIKE 'src/main/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :tested_path
         ),
         tested_changes AS (
             SELECT target_method_id AS tested_id, change_week FROM filtered_change
@@ -139,7 +144,7 @@ class CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(AbstractCoChangedW
         ),
         test_methods AS (
             SELECT id FROM git_methods
-            WHERE file_path LIKE 'src/test/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :test_path
         ),
         test_changes AS (
             SELECT target_method_id AS test_id, change_week FROM filtered_change

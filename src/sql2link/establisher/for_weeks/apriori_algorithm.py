@@ -57,11 +57,11 @@ class AprioriInWeekLinkEstablisher(AbsLinkEstablisher):
         ),
         tested_modified AS (
             SELECT target_method_id AS tested_method_id, change_week FROM week_based_changes
-            WHERE file_path LIKE 'src/main/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :tested_path
         ),
         test_modified AS (
             SELECT target_method_id AS test_method_id, change_week FROM week_based_changes
-            WHERE file_path LIKE 'src/test/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :test_path
         ),
         frequent_tested AS (
             SELECT tested_method_id, COUNT(*) AS support FROM tested_modified

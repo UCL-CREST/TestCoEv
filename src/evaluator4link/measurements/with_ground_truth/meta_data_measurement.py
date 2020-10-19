@@ -27,7 +27,7 @@ class StrategyWithGroundTruthMeasurement(AbstractMeasurement):
 
     __SELECT_PREDICT_FOR_SAME_ID = '''
         SELECT tested_method_id, test_method_id, confidence_num FROM {strategy}
-        WHERE test_method_id = :method_id OR test_method_id = :method_id
+        WHERE tested_method_id = :method_id OR test_method_id = :method_id
     '''
 
     __SELECT_METHOD_BY_ID_SQL_STMT = '''

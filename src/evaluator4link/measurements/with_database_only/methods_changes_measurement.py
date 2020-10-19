@@ -5,10 +5,14 @@ from evaluator4link.measurements.utils import DatabaseMethodName
 
 class CommitsDataMeasurement(AbstractMeasurement):
     __SELECT_ALL_CHANGED_COMMITS_OF_METHOD_SQL_STMT = '''
-        SELECT simple_name, class_name, file_path, change_type, commit_hash FROM (
-            changes INNER JOIN methods
-            ON changes.target_method_id = methods.id
-        )
+        SELECT
+            git_methods.id AS method_id,
+            file_path,
+            change_type,
+            git_commits.id AS commit_id
+        FROM git_changes
+        INNER JOIN git_methods ON target_method_id = git_methods.id
+        INNER JOIN git_commits ON commit_hash = hash_value
     '''
 
     @property
@@ -31,9 +35,8 @@ class CommitsDataMeasurement(AbstractMeasurement):
     def coordinates_for_tested(self) -> List[Tuple[int, int, int]]:
         return self.__coordinates_for_tested
 
-
     def __init__(self, path_to_db: str):
-        # Method_X, COMMIT_Y, ChangeType, FilePath
+        # Method_X, COMMIT_Y, ChangeType_Z, FilePath
         self.__commit_hash_y_table: Dict[str, int] = dict()
         self.__method_package_x_table: Dict[str, int] = dict()
         self.__change_type_z_table: Dict[str, int] = {'ADD': 1, 'MODIFY': 2, 'RENAME': 3}
@@ -43,11 +46,10 @@ class CommitsDataMeasurement(AbstractMeasurement):
 
     def _measure(self) -> None:
         exec_res = self._predict_database.cursor().execute(self.__SELECT_ALL_CHANGED_COMMITS_OF_METHOD_SQL_STMT)
-        for signature, class_name, file_path, change_type, hash_value in exec_res:
-            package_name = DatabaseMethodName(file_path, class_name, signature).package_name_with_signature
-            x_val = self.__from_method_package_signature_to_x(package_name)
-            y_val = self.__from_hash_to_y(hash_value)
-            z_val = self.__from_hash_to_y(change_type)
+        for method_id, file_path, change_type, commit_id in exec_res:
+            x_val = method_id
+            y_val = commit_id
+            z_val = self.__from_change_type_to_z(change_type)
             coordinates = self.__coordinates_for_test if self.__is_test(file_path) else self.__coordinates_for_tested
             coordinates.append((x_val, y_val, z_val))
         return None
@@ -66,4 +68,4 @@ class CommitsDataMeasurement(AbstractMeasurement):
         return self.__change_type_z_table[change_type]
 
     def __is_test(self, file_path: str) -> bool:
-        return file_path.startswith('src/test/java/org/apache/commons/lang3')
+        return file_path is not None and 'test' in file_path

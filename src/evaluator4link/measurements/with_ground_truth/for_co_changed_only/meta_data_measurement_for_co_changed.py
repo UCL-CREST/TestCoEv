@@ -1,5 +1,5 @@
 import abc
-from typing import Dict, List, Tuple, Set
+from typing import Dict, Tuple, Set
 
 from evaluator4link.measurements.with_ground_truth import StrategyWithGroundTruthMeasurement
 

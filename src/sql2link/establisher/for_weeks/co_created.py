@@ -59,14 +59,14 @@ class CoCreatedInWeekLinkEstablisher(AbsLinkEstablisher):
                 added_week_table INNER JOIN alive_methods 
                 ON id = target_method_id
             )
-            WHERE file_path LIKE 'src/main/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :tested_path
         ),
         test_added AS (
             SELECT id AS test_method_id, change_week FROM (                
                 added_week_table INNER JOIN alive_methods 
                 ON id = target_method_id
             ) 
-            WHERE file_path LIKE 'src/test/java/org/apache/commons/lang3/%'
+            WHERE file_path LIKE :test_path
         )
         SELECT DISTINCT tested_method_id, test_method_id FROM (
             tested_added INNER JOIN test_added
