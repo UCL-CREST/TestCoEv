@@ -2,19 +2,18 @@ from sql2link.establisher import AbsLinkEstablisher
 
 
 class CoCreatedInCommitLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
     def _remove_previous_table_sql(self) -> str:
-        return '''
+        return """
         DROP TABLE IF EXISTS links_commits_based_cocreated
-        '''
+        """
 
     @property
     def _initial_table_sql(self) -> str:
-        return '''
+        return """
         CREATE TABLE links_commits_based_cocreated (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -22,17 +21,17 @@ class CoCreatedInCommitLinkEstablisher(AbsLinkEstablisher):
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-        '''
+        """
 
     @property
     def _insert_new_row_sql(self) -> str:
-        return '''
+        return """
         INSERT INTO links_commits_based_cocreated (tested_method_id, test_method_id, confidence_num) VALUES(?, ?, 1)
-        '''
+        """
 
     @property
     def _link_establishing_sql(self) -> str:
-        return '''
+        return """
         WITH alive_methods AS (
             SELECT id, file_path FROM main.git_methods
             WHERE NOT EXISTS(
@@ -54,4 +53,4 @@ class CoCreatedInCommitLinkEstablisher(AbsLinkEstablisher):
             test_methods INNER JOIN tested_methods
             ON test_methods.commit_hash = tested_methods.commit_hash
         )
-        '''
+        """

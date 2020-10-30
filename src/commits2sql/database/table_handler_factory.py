@@ -11,8 +11,8 @@ class TableHandlerFactory(object):
     __connections_dict: Dict[str, sqlite3.Connection] = {}
 
     def __init__(self, path: str, name: str):
-        db_path = f'{path}/{name}.db'
-        db_path = db_path.replace('-', '_')
+        db_path = f"{path}/{name}.db"
+        db_path = db_path.replace("-", "_")
         connections_dict = TableHandlerFactory.__connections_dict
         if db_path not in connections_dict:
             connections_dict[db_path] = sqlite3.connect(db_path)
@@ -25,10 +25,13 @@ class TableHandlerFactory(object):
         self.__connection.close()
 
     @property
-    def for_commits(self) -> CommitTableHandler: return self.__for_commits_table
+    def for_commits(self) -> CommitTableHandler:
+        return self.__for_commits_table
 
     @property
-    def for_methods(self) -> MethodTableHandler: return self.__for_methods_table
+    def for_methods(self) -> MethodTableHandler:
+        return self.__for_methods_table
 
     @property
-    def for_changes(self) -> ChangeTableHandler: return self.__for_changes_table
+    def for_changes(self) -> ChangeTableHandler:
+        return self.__for_changes_table

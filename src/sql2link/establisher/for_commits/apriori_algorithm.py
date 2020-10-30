@@ -2,19 +2,18 @@ from sql2link.establisher import AbsLinkEstablisher
 
 
 class AprioriInCommitLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
     def _remove_previous_table_sql(self) -> str:
-        return '''
+        return """
         DROP TABLE IF EXISTS links_commits_based_apriori
-        '''
+        """
 
     @property
     def _initial_table_sql(self) -> str:
-        return '''
+        return """
         CREATE TABLE links_commits_based_apriori (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -23,21 +22,22 @@ class AprioriInCommitLinkEstablisher(AbsLinkEstablisher):
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-        '''
+        """
 
     @property
     def _insert_new_row_sql(self) -> str:
-        return '''
+        return """
         INSERT INTO links_commits_based_apriori (
             tested_method_id, 
             test_method_id, 
             support_num, 
             confidence_num
         ) VALUES(?, ?, ?, ?)
-        '''
+        """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_methods AS (
             SELECT id, file_path FROM git_methods
             WHERE simple_name NOT IN ('main(String [ ] args)', 'suite()', 'setUp()', 'tearDown()')
@@ -99,4 +99,4 @@ class AprioriInCommitLinkEstablisher(AbsLinkEstablisher):
             MAX(CAST(cochange_support AS FLOAT)/tested_support ) AS confidence 
         FROM frequent_cochange_table
         GROUP BY test_id HAVING confidence >= :min_confidence
-        '''
+        """

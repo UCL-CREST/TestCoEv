@@ -8,7 +8,8 @@ class AbstractCommitsCountMeasurement(AbstractMeasurement):
 
     @property
     @abc.abstractmethod
-    def _count_changes_in_commit_sql_stmt(self) -> str: pass
+    def _count_changes_in_commit_sql_stmt(self) -> str:
+        pass
 
     @property
     def commits_xs_mapping(self) -> Dict[str, int]:
@@ -25,14 +26,18 @@ class AbstractCommitsCountMeasurement(AbstractMeasurement):
     def __init__(
         self,
         path_to_db: str,
-        path_to_test: str = 'src/test%',
-        path_to_tested: str = 'src/main%',
-
+        path_to_test: str = "src/test%",
+        path_to_tested: str = "src/main%",
     ):
         self.__commit_xs_table: Dict[str, int] = dict()
-        self.__type_zs_table: Dict[str, int] = {'ADD': 1, 'MODIFY': 2, 'RENAME': 3, 'REMOVE': 4}
+        self.__type_zs_table: Dict[str, int] = {
+            "ADD": 1,
+            "MODIFY": 2,
+            "RENAME": 3,
+            "REMOVE": 4,
+        }
         self.__commit_change_counts: List[Tuple[int, int, int]] = list()
-        self.__paths = {'test_path': path_to_test, 'tested_path': path_to_tested}
+        self.__paths = {"test_path": path_to_test, "tested_path": path_to_tested}
         super().__init__(path_to_db)
 
     def _measure(self) -> None:
@@ -56,9 +61,9 @@ class AbstractCommitsCountMeasurement(AbstractMeasurement):
 
 
 class FileCommitsCountMeasurement(AbstractCommitsCountMeasurement):
-
     @property
-    def _count_changes_in_commit_sql_stmt(self) -> str: return '''
+    def _count_changes_in_commit_sql_stmt(self) -> str:
+        return """
         WITH files_changes AS (
             SELECT DISTINCT commit_hash, change_type, file_path FROM (
                 git_changes INNER JOIN git_methods
@@ -78,12 +83,13 @@ class FileCommitsCountMeasurement(AbstractCommitsCountMeasurement):
         SELECT commit_hash, change_type, COUNT(*) FROM files_changes
         WHERE commit_hash IN co_changed_commits
         GROUP BY commit_hash, change_type
-    '''
+    """
 
 
 class ClassCommitsCountMeasurement(AbstractCommitsCountMeasurement):
     @property
-    def _count_changes_in_commit_sql_stmt(self) -> str: return '''
+    def _count_changes_in_commit_sql_stmt(self) -> str:
+        return """
         WITH classes_changes AS (
             SELECT DISTINCT commit_hash, change_type, (class_name || file_path) AS unique_class_id FROM (
                 git_changes INNER JOIN git_methods
@@ -103,12 +109,13 @@ class ClassCommitsCountMeasurement(AbstractCommitsCountMeasurement):
         SELECT commit_hash, change_type, COUNT(*) FROM classes_changes
         WHERE commit_hash IN co_changed_commits
         GROUP BY commit_hash, change_type
-    '''
+    """
 
 
 class MethodCommitsCountMeasurement(AbstractCommitsCountMeasurement):
     @property
-    def _count_changes_in_commit_sql_stmt(self) -> str: return '''
+    def _count_changes_in_commit_sql_stmt(self) -> str:
+        return """
         WITH test_methods AS (
             SELECT DISTINCT id FROM git_methods WHERE file_path LIKE :test_path
         ), tested_functions AS (
@@ -121,12 +128,13 @@ class MethodCommitsCountMeasurement(AbstractCommitsCountMeasurement):
         SELECT commit_hash, change_type, COUNT(*) FROM git_changes
         WHERE commit_hash IN co_changed_commits
         GROUP BY commit_hash, change_type
-    '''
+    """
 
 
 class TestedCommitsCountMeasurement(AbstractCommitsCountMeasurement):
     @property
-    def _count_changes_in_commit_sql_stmt(self) -> str: return '''
+    def _count_changes_in_commit_sql_stmt(self) -> str:
+        return """
         WITH test_methods AS (
             SELECT DISTINCT id FROM git_methods WHERE file_path LIKE :test_path
         ), tested_functions AS (
@@ -140,12 +148,13 @@ class TestedCommitsCountMeasurement(AbstractCommitsCountMeasurement):
         WHERE commit_hash IN co_changed_commits 
         AND target_method_id IN tested_functions
         GROUP BY commit_hash, change_type 
-    '''
+    """
 
 
 class TestCommitsCountMeasurement(AbstractCommitsCountMeasurement):
     @property
-    def _count_changes_in_commit_sql_stmt(self) -> str: return '''
+    def _count_changes_in_commit_sql_stmt(self) -> str:
+        return """
         WITH test_methods AS (
             SELECT DISTINCT id FROM git_methods WHERE file_path LIKE :test_path
         ), tested_functions AS (
@@ -159,4 +168,4 @@ class TestCommitsCountMeasurement(AbstractCommitsCountMeasurement):
         WHERE commit_hash IN co_changed_commits 
         AND target_method_id IN test_methods
         GROUP BY commit_hash, change_type 
-    '''
+    """

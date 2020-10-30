@@ -5,5 +5,5 @@ class AbstractHolder(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def is_renamed(self): pass
-
+    def is_renamed(self):
+        pass

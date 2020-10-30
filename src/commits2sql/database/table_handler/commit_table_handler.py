@@ -4,7 +4,6 @@ from commits2sql.database.table_handler import AbsSqlStmtHolder, AbsTableHandler
 
 
 class CommitStmtHolder(AbsSqlStmtHolder):
-
     def create_db_stmt(self) -> str:
         return """
         CREATE TABLE if NOT EXISTS git_commits(
@@ -37,7 +36,7 @@ class CommitStmtHolder(AbsSqlStmtHolder):
 
 class CommitTableHandler(AbsTableHandler):
 
-    __DATE_TO_STR_FORMAT = '%Y-%m-%d'
+    __DATE_TO_STR_FORMAT = "%Y-%m-%d"
 
     def __init__(self, db_connection: Connection):
         AbsTableHandler.__init__(self, db_connection, CommitStmtHolder())
@@ -46,20 +45,21 @@ class CommitTableHandler(AbsTableHandler):
 
     def is_hash_exist(self, commit_hash: str):
         count_sql = self._get_stmts_holder().count_commit_stmts()
-        res_cursor = self._get_db_connection().execute(count_sql, {"commit_hash": commit_hash})
-        is_recorded_before = (res_cursor.fetchone()[0] != 0)
+        res_cursor = self._get_db_connection().execute(
+            count_sql, {"commit_hash": commit_hash}
+        )
+        is_recorded_before = res_cursor.fetchone()[0] != 0
         res_cursor.close()
         return is_recorded_before
 
     def insert_new_commit(self, commit_hash: str, commit_date: datetime):
         return self._insert_new_row(
             commit_hash=commit_hash,
-            commit_date=commit_date.strftime(CommitTableHandler.__DATE_TO_STR_FORMAT)
+            commit_date=commit_date.strftime(CommitTableHandler.__DATE_TO_STR_FORMAT),
         )
-
 
     def _get_stmts_holder(self) -> CommitStmtHolder:
         stmts = super(CommitTableHandler, self)._get_stmts_holder()
-        if not isinstance(stmts, CommitStmtHolder): raise TypeError("IMPOSSIBLE")
+        if not isinstance(stmts, CommitStmtHolder):
+            raise TypeError("IMPOSSIBLE")
         return stmts
-

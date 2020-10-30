@@ -17,4 +17,5 @@ class AbstractMeasurement(object):
         return self.__FLYWEIGHT_PREDICT_DB
 
     @abc.abstractmethod
-    def _measure(self) -> Any: pass
+    def _measure(self) -> Any:
+        pass

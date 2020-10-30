@@ -5,8 +5,7 @@ from commits2sql.modification.change_holder.method_holder import MethodHolder
 
 
 class ClassHolder(AbstractHolder):
-
-    def __init__(self, before:Optional[str], current: Optional[str]):
+    def __init__(self, before: Optional[str], current: Optional[str]):
         self.name_before: Optional[str] = before
         self.name_current: Optional[str] = current
         self.methods: List[MethodHolder] = list()
@@ -18,10 +17,14 @@ class ClassHolder(AbstractHolder):
         return (self.name_before is not None) and (self.name_current is None)
 
     def is_renamed(self) -> bool:
-        return (self.name_before is not None) and (self.name_current is not None) \
-               and (self.name_before != self.name_current)
+        return (
+            (self.name_before is not None)
+            and (self.name_current is not None)
+            and (self.name_before != self.name_current)
+        )
 
     def is_modified(self) -> bool:
         for method in self.methods:
-            if method.is_changed(): return True
+            if method.is_changed():
+                return True
         return False

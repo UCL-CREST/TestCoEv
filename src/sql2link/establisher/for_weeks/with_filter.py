@@ -4,18 +4,21 @@ from abc import ABC, ABCMeta
 from sql2link.establisher import AbsLinkEstablisher
 
 
-class AbstractCoChangedWithFilterWeekLinkEstablisher(AbsLinkEstablisher, metaclass=ABCMeta):
-
+class AbstractCoChangedWithFilterWeekLinkEstablisher(
+    AbsLinkEstablisher, metaclass=ABCMeta
+):
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_filtered_weeks_based_cochanged
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_filtered_weeks_based_cochanged (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -24,23 +27,26 @@ class AbstractCoChangedWithFilterWeekLinkEstablisher(AbsLinkEstablisher, metacla
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-    '''
+    """
 
     @property
-    def _insert_new_row_sql(self) -> str: return '''
+    def _insert_new_row_sql(self) -> str:
+        return """
         INSERT INTO links_filtered_weeks_based_cochanged (
             tested_method_id, test_method_id, support, confidence_num
         ) VALUES(?, ?, ?, ?)
-    '''
+    """
 
 
-class CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(AbstractCoChangedWithFilterWeekLinkEstablisher):
-
+class CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(
+    AbstractCoChangedWithFilterWeekLinkEstablisher
+):
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash FROM git_commits
         ),
@@ -101,16 +107,18 @@ class CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(AbstractCoCha
             INNER JOIN tested_change_count
             ON tested_id = count_id
         
-    '''
+    """
 
 
-class CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(AbstractCoChangedWithFilterWeekLinkEstablisher):
-
+class CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(
+    AbstractCoChangedWithFilterWeekLinkEstablisher
+):
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash FROM git_commits
         ),
@@ -166,4 +174,4 @@ class CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(AbstractCoChangedW
             co_change_table INNER JOIN tested_change_count
             ON tested_id = count_id
         )
-    '''
+    """

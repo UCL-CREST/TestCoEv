@@ -2,17 +2,18 @@ from sql2link.establisher import AbsLinkEstablisher
 
 
 class CoChangedInCommitLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_commits_based_cochanged
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_commits_based_cochanged (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -21,21 +22,22 @@ class CoChangedInCommitLinkEstablisher(AbsLinkEstablisher):
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-    '''
+    """
 
     @property
     def _insert_new_row_sql(self) -> str:
-        return '''
+        return """
         INSERT INTO links_commits_based_cochanged (
             tested_method_id, 
             test_method_id, 
             support_num, 
             confidence_num
         )  VALUES(?, ?, ?, ?)
-        '''
+        """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_methods AS (
             SELECT id, file_path FROM git_methods
             WHERE simple_name NOT IN ('main(String [ ] args)', 'suite()', 'setUp()', 'tearDown()')
@@ -74,21 +76,22 @@ class CoChangedInCommitLinkEstablisher(AbsLinkEstablisher):
         FROM most_frequent_co_changes 
         INNER JOIN tested_change_count
             ON tested_method_id = count_id
-    '''
+    """
 
 
 class CoChangedInCommitClassLevelLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_commits_based_cochanged_classes
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_commits_based_cochanged_classes ( 
             tested_class VARCHAR (64) NOT NULL, 
             tested_file VARCHAR (64) NOT NULL, 
@@ -97,11 +100,11 @@ class CoChangedInCommitClassLevelLinkEstablisher(AbsLinkEstablisher):
             support_num INTEGER NOT NULL,
             confidence_num FLOAT NOT NULL
         );
-    '''
+    """
 
     @property
     def _insert_new_row_sql(self) -> str:
-        return '''
+        return """
         INSERT INTO links_commits_based_cochanged_classes (
             tested_class, 
             tested_file, 
@@ -110,10 +113,11 @@ class CoChangedInCommitClassLevelLinkEstablisher(AbsLinkEstablisher):
             support_num, 
             confidence_num
         )  VALUES(?, ?, ?, ?, ?, ?)
-        '''
+        """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_methods AS (
             SELECT id, class_name, file_path FROM git_methods
             WHERE simple_name NOT IN ('main(String [ ] args)', 'suite()', 'setUp()', 'tearDown()')
@@ -166,4 +170,4 @@ class CoChangedInCommitClassLevelLinkEstablisher(AbsLinkEstablisher):
         ON tested_class = count_class
         AND tested_file = count_file
         
-    '''
+    """

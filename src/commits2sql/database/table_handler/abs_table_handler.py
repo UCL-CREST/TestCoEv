@@ -7,13 +7,16 @@ class AbsSqlStmtHolder(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def create_db_stmt(self) -> str: pass
+    def create_db_stmt(self) -> str:
+        pass
 
     @abc.abstractmethod
-    def insert_row_stmt(self) -> str: pass
+    def insert_row_stmt(self) -> str:
+        pass
 
     @abc.abstractmethod
-    def select_primary_key_stmt(self) -> str: pass
+    def select_primary_key_stmt(self) -> str:
+        pass
 
 
 class AbsTableHandler(object):

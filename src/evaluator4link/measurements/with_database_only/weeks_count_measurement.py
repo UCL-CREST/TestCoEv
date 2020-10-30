@@ -8,7 +8,8 @@ class AbstractWeeksCountMeasurement(AbstractMeasurement):
 
     @property
     @abc.abstractmethod
-    def _count_changes_in_week_sql_stmt(self) -> str: pass
+    def _count_changes_in_week_sql_stmt(self) -> str:
+        pass
 
     @property
     def weeks_xs_mapping(self) -> Dict[str, int]:
@@ -24,7 +25,12 @@ class AbstractWeeksCountMeasurement(AbstractMeasurement):
 
     def __init__(self, path_to_db: str):
         self.__week_xs_table: Dict[str, int] = dict()
-        self.__type_zs_table: Dict[str, int] = {'ADD': 1, 'MODIFY': 2, 'RENAME': 3, 'REMOVE': 4}
+        self.__type_zs_table: Dict[str, int] = {
+            "ADD": 1,
+            "MODIFY": 2,
+            "RENAME": 3,
+            "REMOVE": 4,
+        }
         self.__week_change_counts: List[Tuple[int, int, int]] = list()
         super().__init__(path_to_db)
 
@@ -49,9 +55,9 @@ class AbstractWeeksCountMeasurement(AbstractMeasurement):
 
 
 class FileWeeksCountMeasurement(AbstractWeeksCountMeasurement):
-
     @property
-    def _count_changes_in_week_sql_stmt(self) -> str: return '''
+    def _count_changes_in_week_sql_stmt(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash  FROM git_commits
         ),
@@ -79,12 +85,13 @@ class FileWeeksCountMeasurement(AbstractWeeksCountMeasurement):
         SELECT change_week, change_type, COUNT(*) FROM files_changes
         WHERE change_week IN co_changed_weeks
         GROUP BY change_week, change_type
-    '''
+    """
 
 
 class ClassWeeksCountMeasurement(AbstractWeeksCountMeasurement):
     @property
-    def _count_changes_in_week_sql_stmt(self) -> str: return '''
+    def _count_changes_in_week_sql_stmt(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash  FROM git_commits
         ),
@@ -112,12 +119,13 @@ class ClassWeeksCountMeasurement(AbstractWeeksCountMeasurement):
         SELECT change_week, change_type, COUNT(*) FROM classes_changes
         WHERE change_week IN co_changed_weeks
         GROUP BY change_week, change_type
-    '''
+    """
 
 
 class MethodWeeksCountMeasurement(AbstractWeeksCountMeasurement):
     @property
-    def _count_changes_in_week_sql_stmt(self) -> str: return '''
+    def _count_changes_in_week_sql_stmt(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash  FROM git_commits
         ),
@@ -140,12 +148,13 @@ class MethodWeeksCountMeasurement(AbstractWeeksCountMeasurement):
         SELECT change_week, change_type, COUNT(*) FROM changes_week_based
         WHERE change_week IN co_changed_weeks
         GROUP BY change_week, change_type
-    '''
+    """
 
 
 class TestedWeeksCountMeasurement(AbstractWeeksCountMeasurement):
     @property
-    def _count_changes_in_week_sql_stmt(self) -> str: return '''
+    def _count_changes_in_week_sql_stmt(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash  FROM git_commits
         ),
@@ -168,12 +177,13 @@ class TestedWeeksCountMeasurement(AbstractWeeksCountMeasurement):
         SELECT change_week, change_type, COUNT(*) FROM changes_week_based
         WHERE change_week IN co_changed_weeks AND target_method_id IN tested_functions
         GROUP BY change_week, change_type
-    '''
+    """
 
 
 class TestWeeksCountMeasurement(AbstractWeeksCountMeasurement):
     @property
-    def _count_changes_in_week_sql_stmt(self) -> str: return '''
+    def _count_changes_in_week_sql_stmt(self) -> str:
+        return """
         WITH commits_to_weeks AS (
             SELECT STRFTIME('%Y-%W', commit_date)  AS week, hash_value AS commit_hash  FROM git_commits
         ),
@@ -196,4 +206,4 @@ class TestWeeksCountMeasurement(AbstractWeeksCountMeasurement):
         SELECT change_week, change_type, COUNT(*) FROM changes_week_based
         WHERE change_week IN co_changed_weeks AND target_method_id IN test_methods
         GROUP BY change_week, change_type
-    '''
+    """

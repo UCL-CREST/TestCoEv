@@ -4,7 +4,6 @@ from commits2sql.database.table_handler import AbsSqlStmtHolder, AbsTableHandler
 
 
 class MethodStmtHolder(AbsSqlStmtHolder):
-
     def create_db_stmt(self) -> str:
         return """
             CREATE TABLE if NOT EXISTS git_methods (
@@ -69,6 +68,7 @@ class MethodStmtHolder(AbsSqlStmtHolder):
             DELETE FROM git_methods 
             WHERE id = :id
         """
+
     def update_simple_name_stmt(self) -> str:
         return """
             UPDATE git_methods 
@@ -93,10 +93,10 @@ class MethodStmtHolder(AbsSqlStmtHolder):
 
 
 class MethodTableHandler(AbsTableHandler):
-
     def _get_stmts_holder(self) -> MethodStmtHolder:
         stmts = super(MethodTableHandler, self)._get_stmts_holder()
-        if not isinstance(stmts, MethodStmtHolder): raise TypeError("IMPOSSIBLE")
+        if not isinstance(stmts, MethodStmtHolder):
+            raise TypeError("IMPOSSIBLE")
         return stmts
 
     def __init__(self, db_connection: Connection):
@@ -104,12 +104,17 @@ class MethodTableHandler(AbsTableHandler):
         self.__commit_hash = None
         self.__commit_date = None
 
-    def select_method_id(self, method_name: str, class_name:str, path: str):
-        res_id = self._select_primary_key(method_name=method_name, class_name=class_name, path=path)
-        if res_id is None: res_id = self._insert_new_row(method_name=method_name, class_name=class_name, path=path)
+    def select_method_id(self, method_name: str, class_name: str, path: str):
+        res_id = self._select_primary_key(
+            method_name=method_name, class_name=class_name, path=path
+        )
+        if res_id is None:
+            res_id = self._insert_new_row(
+                method_name=method_name, class_name=class_name, path=path
+            )
         return res_id
 
-    def __find_crash_id_pairs(self, sql:str, **parameters) -> List[Tuple[int, int]]:
+    def __find_crash_id_pairs(self, sql: str, **parameters) -> List[Tuple[int, int]]:
         exe_cursor = self._get_db_connection().execute(sql, parameters)
         result = [
             (each_row[0], each_row[1])
@@ -119,21 +124,39 @@ class MethodTableHandler(AbsTableHandler):
         exe_cursor.close()
         return result
 
-    def find_crash_rows_of_relocate(self, old_path: str, new_path: str)->List[Tuple[int, int]]:
-        select_sql = self._get_stmts_holder().select_crash_row_id_pair_after_relocate_stmt()
-        return self.__find_crash_id_pairs(select_sql, old_path=old_path, new_path=new_path)
+    def find_crash_rows_of_relocate(
+        self, old_path: str, new_path: str
+    ) -> List[Tuple[int, int]]:
+        select_sql = (
+            self._get_stmts_holder().select_crash_row_id_pair_after_relocate_stmt()
+        )
+        return self.__find_crash_id_pairs(
+            select_sql, old_path=old_path, new_path=new_path
+        )
 
-    def find_crash_rows_of_class_rename(self, path: str, old_class: str, new_class: str) -> List[Tuple[int, int]]:
-        select_sql = self._get_stmts_holder().select_crash_row_id_pair_after_rename_class_stmt()
-        return self.__find_crash_id_pairs(select_sql, old_class=old_class, new_class=new_class, path=path)
+    def find_crash_rows_of_class_rename(
+        self, path: str, old_class: str, new_class: str
+    ) -> List[Tuple[int, int]]:
+        select_sql = (
+            self._get_stmts_holder().select_crash_row_id_pair_after_rename_class_stmt()
+        )
+        return self.__find_crash_id_pairs(
+            select_sql, old_class=old_class, new_class=new_class, path=path
+        )
 
-    def find_crash_rows_of_method_rename(self, method_id: int, new_name: str) -> List[Tuple[int, int]]:
-        select_sql = self._get_stmts_holder().select_crash_row_id_pair_after_rename_method_stmt()
-        return self.__find_crash_id_pairs(select_sql, method_id=method_id, new_name=new_name)
+    def find_crash_rows_of_method_rename(
+        self, method_id: int, new_name: str
+    ) -> List[Tuple[int, int]]:
+        select_sql = (
+            self._get_stmts_holder().select_crash_row_id_pair_after_rename_method_stmt()
+        )
+        return self.__find_crash_id_pairs(
+            select_sql, method_id=method_id, new_name=new_name
+        )
 
     def delete_methods_by_id(self, method_id: int) -> None:
         delete_sql = self._get_stmts_holder().delete_row_by_id_stmt()
-        exe_cursor = self._get_db_connection().execute(delete_sql, {'id': method_id})
+        exe_cursor = self._get_db_connection().execute(delete_sql, {"id": method_id})
         exe_cursor.close()
         return None
 
@@ -148,7 +171,9 @@ class MethodTableHandler(AbsTableHandler):
 
     def update_class(self, path: str, old_class: str, new_class: str) -> None:
         update_sql = self._get_stmts_holder().update_class_name_stmt()
-        return self.__update(update_sql, path=path, old_class=old_class, new_class=new_class)
+        return self.__update(
+            update_sql, path=path, old_class=old_class, new_class=new_class
+        )
 
     def update_name(self, method_id: int, new_name: str) -> None:
         update_sql = self._get_stmts_holder().update_simple_name_stmt()

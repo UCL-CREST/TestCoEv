@@ -7,14 +7,16 @@ from evaluator4link.measurements import AbstractMeasurement
 
 class StrategyWithGroundTruthMeasurementClassLevel(AbstractMeasurement):
 
-    __SELECT_PREDICT_FOR_SAME_CLASS_NAME = '''
+    __SELECT_PREDICT_FOR_SAME_CLASS_NAME = """
         SELECT tested_class, test_class, confidence_num
         FROM {strategy}
         WHERE tested_class Like :class_name 
             OR test_class LIKE :class_name
-    '''
+    """
 
-    __EXTRACT_SHORT_NAME_FROM_LONG_NAME_REGEX = r'^(?:.+::)*(?P<class_name>\w+)(?:<.*)?$'
+    __EXTRACT_SHORT_NAME_FROM_LONG_NAME_REGEX = (
+        r"^(?:.+::)*(?P<class_name>\w+)(?:<.*)?$"
+    )
 
     __FLYWEIGHT_TRUTH_PANDAS: Optional[pandas.DataFrame] = None
 
@@ -37,15 +39,23 @@ class StrategyWithGroundTruthMeasurementClassLevel(AbstractMeasurement):
             self._predict_links.update(self.__get_predicate_links_of(test_class))
         predicted_links_set = set(self._predict_links.keys())
         ground_truth_links_set = set(self._ground_truth_links.keys())
-        valid_predict_links_set = predicted_links_set.intersection(ground_truth_links_set)
-        self._valid_predict_links = {names: self._predict_links[names] for names in valid_predict_links_set}
+        valid_predict_links_set = predicted_links_set.intersection(
+            ground_truth_links_set
+        )
+        self._valid_predict_links = {
+            names: self._predict_links[names] for names in valid_predict_links_set
+        }
         return None
 
     def __get_predicate_links_of(self, class_name: int) -> Dict[Tuple[str, str], float]:
         output = dict()
         cursor = self._predict_database.cursor()
-        select_sql = self.__SELECT_PREDICT_FOR_SAME_CLASS_NAME.format(strategy=self.__strategy_name)
-        all_links = cursor.execute(select_sql, {'class_name': f'%{class_name}%'}).fetchall()
+        select_sql = self.__SELECT_PREDICT_FOR_SAME_CLASS_NAME.format(
+            strategy=self.__strategy_name
+        )
+        all_links = cursor.execute(
+            select_sql, {"class_name": f"%{class_name}%"}
+        ).fetchall()
         for tested_class_long_name, test_class_long_name, confidence_num in all_links:
             tested_class = self.__class_name_extract(tested_class_long_name)
             test_class = self.__class_name_extract(test_class_long_name)
@@ -53,10 +63,10 @@ class StrategyWithGroundTruthMeasurementClassLevel(AbstractMeasurement):
         return output
 
     def __class_name_extract(self, class_long_name) -> Optional[str]:
-        match = re.match(self.__EXTRACT_SHORT_NAME_FROM_LONG_NAME_REGEX, class_long_name)
-        return match.group('class_name').lower() if match is not None else None
-
-
+        match = re.match(
+            self.__EXTRACT_SHORT_NAME_FROM_LONG_NAME_REGEX, class_long_name
+        )
+        return match.group("class_name").lower() if match is not None else None
 
     @property
     def predict_links(self) -> Dict[Tuple[str, str], float]:

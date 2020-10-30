@@ -2,26 +2,34 @@ from enum import Enum
 from typing import Optional, Dict
 
 from sql2link.establisher import *
-from sql2link.establisher.for_commits.co_changed import CoChangedInCommitClassLevelLinkEstablisher
-from sql2link.establisher.for_commits.with_filter import CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher, \
-    CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher, CoCreatedWithFilteredCommitLinkEstablisher, \
-    AprioriWithFilteredCommitLinkEstablisher, CoChangedInCommitClassLevelLinkEstablisherWithFilter
-from sql2link.establisher.for_weeks.with_filter import CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher, \
-    CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher
+from sql2link.establisher.for_commits.co_changed import (
+    CoChangedInCommitClassLevelLinkEstablisher,
+)
+from sql2link.establisher.for_commits.with_filter import (
+    CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher,
+    CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher,
+    CoCreatedWithFilteredCommitLinkEstablisher,
+    AprioriWithFilteredCommitLinkEstablisher,
+    CoChangedInCommitClassLevelLinkEstablisherWithFilter,
+)
+from sql2link.establisher.for_weeks.with_filter import (
+    CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher,
+    CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher,
+)
 
 
 class LinkStrategy(Enum):
-    COCHANGE = 'co_changed'
-    COCREATE = 'co_created'
-    APRIORI = 'apriori'
+    COCHANGE = "co_changed"
+    COCREATE = "co_created"
+    APRIORI = "apriori"
+
 
 class LinkBase(Enum):
-    FOR_COMMITS = 'for_commits'
-    FOR_WEEKS = 'for_weeks'
+    FOR_COMMITS = "for_commits"
+    FOR_WEEKS = "for_weeks"
 
 
 class TraceabilityPredictor(object):
-
     def __init__(self, db_path: str):
         self.__db_path = db_path
 
@@ -30,20 +38,28 @@ class TraceabilityPredictor(object):
         strategy: LinkStrategy,
         base: LinkBase,
         parameters=None,
-        is_previous_ignored: bool = False
+        is_previous_ignored: bool = False,
     ):
-        if parameters is None: parameters = dict()
+        if parameters is None:
+            parameters = dict()
         establish: Optional[AbsLinkEstablisher] = None
         if strategy is LinkStrategy.COCREATE:
-            if base is LinkBase.FOR_COMMITS: establish = CoCreatedInCommitLinkEstablisher(self.__db_path)
-            elif base is LinkBase.FOR_WEEKS: establish = CoCreatedInWeekLinkEstablisher(self.__db_path)
+            if base is LinkBase.FOR_COMMITS:
+                establish = CoCreatedInCommitLinkEstablisher(self.__db_path)
+            elif base is LinkBase.FOR_WEEKS:
+                establish = CoCreatedInWeekLinkEstablisher(self.__db_path)
         elif strategy is LinkStrategy.COCHANGE:
-            if base is LinkBase.FOR_COMMITS: establish = CoChangedInCommitLinkEstablisher(self.__db_path)
-            elif base is LinkBase.FOR_WEEKS: establish = CoChangedInWeekLinkEstablisher(self.__db_path)
+            if base is LinkBase.FOR_COMMITS:
+                establish = CoChangedInCommitLinkEstablisher(self.__db_path)
+            elif base is LinkBase.FOR_WEEKS:
+                establish = CoChangedInWeekLinkEstablisher(self.__db_path)
         elif strategy is LinkStrategy.APRIORI:
-            if base is LinkBase.FOR_COMMITS: establish = AprioriInCommitLinkEstablisher(self.__db_path)
-            elif base is LinkBase.FOR_WEEKS: establish = AprioriInWeekLinkEstablisher(self.__db_path)
-        if establish is not None: establish.do(parameters=parameters,is_previous_ingored=is_previous_ignored)
+            if base is LinkBase.FOR_COMMITS:
+                establish = AprioriInCommitLinkEstablisher(self.__db_path)
+            elif base is LinkBase.FOR_WEEKS:
+                establish = AprioriInWeekLinkEstablisher(self.__db_path)
+        if establish is not None:
+            establish.do(parameters=parameters, is_previous_ingored=is_previous_ignored)
 
     def run_with_filter(
         self,
@@ -51,19 +67,38 @@ class TraceabilityPredictor(object):
         base: LinkBase,
         is_for_all: bool = False,
         is_previous_ignored: bool = False,
-        parameters: Dict =None
+        parameters: Dict = None,
     ):
-        if parameters is None: parameters = dict()
+        if parameters is None:
+            parameters = dict()
         establish: Optional[AbsLinkEstablisher] = None
         if strategy is LinkStrategy.COCREATE:
             establish = CoCreatedWithFilteredCommitLinkEstablisher(self.__db_path)
         elif strategy is LinkStrategy.COCHANGE:
             if base is LinkBase.FOR_COMMITS:
-                if is_for_all: establish = CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher(self.__db_path)
-                else: establish = CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher(self.__db_path)
+                if is_for_all:
+                    establish = (
+                        CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher(
+                            self.__db_path
+                        )
+                    )
+                else:
+                    establish = (
+                        CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher(
+                            self.__db_path
+                        )
+                    )
             elif base is LinkBase.FOR_WEEKS:
-                if is_for_all: establish = CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(self.__db_path)
-                else: establish = CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(self.__db_path)
+                if is_for_all:
+                    establish = CoChangedtedForAllChangeTypeFilteredWeekLinkEstablisher(
+                        self.__db_path
+                    )
+                else:
+                    establish = (
+                        CoChangedtedForSeparateChangeTypeFilteredWeekLinkEstablisher(
+                            self.__db_path
+                        )
+                    )
         elif strategy is LinkStrategy.APRIORI:
             establish = AprioriWithFilteredCommitLinkEstablisher(self.__db_path)
         if establish is not None:
@@ -75,9 +110,10 @@ class TraceabilityPredictor(object):
         strategy: LinkStrategy,
         base: LinkBase,
         parameters=None,
-        is_previous_ignored: bool = False
+        is_previous_ignored: bool = False,
     ) -> None:
-        if parameters is None: parameters = dict()
+        if parameters is None:
+            parameters = dict()
         establisher = CoChangedInCommitClassLevelLinkEstablisher(self.__db_path)
         establisher.do(parameters=parameters, is_previous_ingored=is_previous_ignored)
         return None
@@ -87,9 +123,12 @@ class TraceabilityPredictor(object):
         strategy: LinkStrategy,
         base: LinkBase,
         parameters=None,
-        is_previous_ignored: bool = False
+        is_previous_ignored: bool = False,
     ) -> None:
-        if parameters is None: parameters = dict()
-        establisher = CoChangedInCommitClassLevelLinkEstablisherWithFilter(self.__db_path)
+        if parameters is None:
+            parameters = dict()
+        establisher = CoChangedInCommitClassLevelLinkEstablisherWithFilter(
+            self.__db_path
+        )
         establisher.do(parameters=parameters, is_previous_ingored=is_previous_ignored)
         return None

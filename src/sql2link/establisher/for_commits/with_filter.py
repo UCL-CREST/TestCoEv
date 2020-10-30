@@ -1,18 +1,21 @@
 from sql2link.establisher import AbsLinkEstablisher
 
 
-class CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher(AbsLinkEstablisher):
-
+class CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher(
+    AbsLinkEstablisher
+):
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_filtered_commits_based_cochanged
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_filtered_commits_based_cochanged (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -21,17 +24,19 @@ class CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher(AbsLinkEsta
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-    '''
+    """
 
     @property
-    def _insert_new_row_sql(self) -> str: return '''
+    def _insert_new_row_sql(self) -> str:
+        return """
         INSERT INTO links_filtered_commits_based_cochanged (
             tested_method_id, test_method_id, support, confidence_num
         ) VALUES(?, ?, ?, ?)
-    '''
+    """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH commits_changes_count AS (
             SELECT
                 commit_hash,
@@ -87,21 +92,22 @@ class CoChangedtedForSeparateChangeTypeFilteredCommitLinkEstablisher(AbsLinkEsta
             INNER JOIN test_change_count
         GROUP BY test_method_id
         
-    '''
+    """
 
 
 class CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_filtered_commits_based_cochanged
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_filtered_commits_based_cochanged (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -110,17 +116,19 @@ class CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher(AbsLinkEstablish
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-    '''
+    """
 
     @property
-    def _insert_new_row_sql(self) -> str: return '''
+    def _insert_new_row_sql(self) -> str:
+        return """
         INSERT INTO links_filtered_commits_based_cochanged (
             tested_method_id, test_method_id, support, confidence_num
         ) VALUES(?, ?, ?, ?)
-    '''
+    """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_commits AS (
             SELECT DISTINCT commit_hash 
             FROM git_changes
@@ -167,21 +175,22 @@ class CoChangedtedForAllChangeTypeFilteredCommitLinkEstablisher(AbsLinkEstablish
         GROUP BY test_method_id
         
         
-    '''
+    """
 
 
 class CoCreatedWithFilteredCommitLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_filtered_commits_based_cocreated
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_filtered_commits_based_cocreated (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -189,17 +198,19 @@ class CoCreatedWithFilteredCommitLinkEstablisher(AbsLinkEstablisher):
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-    '''
+    """
 
     @property
-    def _insert_new_row_sql(self) -> str: return '''
+    def _insert_new_row_sql(self) -> str:
+        return """
         INSERT INTO links_filtered_commits_based_cocreated (
             tested_method_id, test_method_id, confidence_num
         ) VALUES(?, ?, 1)
-    '''
+    """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_commits AS (
             SELECT commit_hash 
             FROM git_changes
@@ -230,21 +241,22 @@ class CoCreatedWithFilteredCommitLinkEstablisher(AbsLinkEstablisher):
             tested_functions INNER JOIN test_methods
             ON tested_functions.commit_hash = test_methods.commit_hash
         )
-    '''
+    """
 
 
 class AprioriWithFilteredCommitLinkEstablisher(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_filtered_commits_based_apriori
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_filtered_commits_based_apriori (
             tested_method_id INTEGER NOT NULL,
             test_method_id INTEGER NOT NULL,
@@ -253,17 +265,19 @@ class AprioriWithFilteredCommitLinkEstablisher(AbsLinkEstablisher):
             FOREIGN KEY (tested_method_id) REFERENCES git_methods(id), 
             FOREIGN KEY (test_method_id) REFERENCES git_methods(id)
         );
-    '''
+    """
 
     @property
-    def _insert_new_row_sql(self) -> str: return '''
+    def _insert_new_row_sql(self) -> str:
+        return """
         INSERT INTO links_filtered_commits_based_apriori (
             tested_method_id, test_method_id, support_num, confidence_num
         ) VALUES(?, ?, ?, ?)
-    '''
+    """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_commits AS (
             SELECT DISTINCT commit_hash 
             FROM git_changes
@@ -332,20 +346,22 @@ class AprioriWithFilteredCommitLinkEstablisher(AbsLinkEstablisher):
             CAST(cochange_support AS FLOAT)/tested_support AS confidence
         FROM frequent_cochange_table
         WHERE confidence >= :min_confidence
-    '''
+    """
+
 
 class CoChangedInCommitClassLevelLinkEstablisherWithFilter(AbsLinkEstablisher):
-
     def __init__(self, db_path: str):
         super().__init__(db_path)
 
     @property
-    def _remove_previous_table_sql(self) -> str: return '''
+    def _remove_previous_table_sql(self) -> str:
+        return """
         DROP TABLE IF EXISTS links_filtered_commits_based_cochanged_classes
-    '''
+    """
 
     @property
-    def _initial_table_sql(self) -> str: return '''
+    def _initial_table_sql(self) -> str:
+        return """
         CREATE TABLE links_filtered_commits_based_cochanged_classes ( 
             tested_class VARCHAR (64) NOT NULL, 
             tested_file VARCHAR (64) NOT NULL, 
@@ -354,11 +370,11 @@ class CoChangedInCommitClassLevelLinkEstablisherWithFilter(AbsLinkEstablisher):
             support_num INTEGER NOT NULL,
             confidence_num FLOAT NOT NULL
         );
-    '''
+    """
 
     @property
     def _insert_new_row_sql(self) -> str:
-        return '''
+        return """
         INSERT INTO links_filtered_commits_based_cochanged_classes (
             tested_class, 
             tested_file, 
@@ -367,10 +383,11 @@ class CoChangedInCommitClassLevelLinkEstablisherWithFilter(AbsLinkEstablisher):
             support_num, 
             confidence_num
         )  VALUES(?, ?, ?, ?, ?, ?)
-        '''
+        """
 
     @property
-    def _link_establishing_sql(self) -> str: return '''
+    def _link_establishing_sql(self) -> str:
+        return """
         WITH valid_methods AS (
             SELECT id, class_name, file_path FROM git_methods
             WHERE simple_name NOT IN ('main(String [ ] args)', 'suite()', 'setUp()', 'tearDown()')
@@ -437,4 +454,4 @@ class CoChangedInCommitClassLevelLinkEstablisherWithFilter(AbsLinkEstablisher):
         INNER JOIN tested_classes_changes_count
         ON tested_class = count_class
         AND tested_file = count_file
-    '''
+    """
